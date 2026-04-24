@@ -1,12 +1,20 @@
 import streamlit as st
+import os
 from langgraph.graph import StateGraph
 from langchain.chat_models import ChatOpenAI
 
-llm = ChatOpenAI()
+# 🔐 Load API Key safely
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+llm = ChatOpenAI(
+    temperature=0.7,
+    openai_api_key=OPENAI_API_KEY
+)
 
 class State(dict):
     pass
 
+# 🔹 Intent Classification
 def classify(state):
     query = state["query"].lower()
 
@@ -21,6 +29,7 @@ def classify(state):
 
     return state
 
+# 🔹 Nodes
 def faq_node(state):
     state["response"] = "Return policy is 7 days. Refund in 5-7 days."
     return state
@@ -30,13 +39,15 @@ def order_node(state):
     return state
 
 def complaint_node(state):
-    state["response"] = "Complaint register ho gayi hai."
+    state["response"] = "Complaint register ho gayi hai. Team will contact you."
     return state
 
 def general_node(state):
-    state["response"] = llm.predict(state["query"])
+    response = llm.invoke(state["query"])
+    state["response"] = response.content
     return state
 
+# 🔹 Build Graph
 graph = StateGraph(State)
 
 graph.add_node("classify", classify)
@@ -66,10 +77,27 @@ graph.set_finish_point("general")
 app = graph.compile()
 
 # 🌐 Streamlit UI
+st.set_page_config(page_title="Retail GenAI", page_icon="🛍️")
+
 st.title("🇮🇳 Indian Retail GenAI Support System")
+
+# 💬 Chat History
+if "chat" not in st.session_state:
+    st.session_state.chat = []
 
 query = st.text_input("Ask your question:")
 
 if query:
     result = app.invoke({"query": query})
-    st.write(result["response"])
+    answer = result["response"]
+
+    # Save chat
+    st.session_state.chat.append(("You", query))
+    st.session_state.chat.append(("AI", answer))
+
+# Display chat
+for sender, message in st.session_state.chat:
+    if sender == "You":
+        st.markdown(f"**🧑 You:** {message}")
+    else:
+        st.markdown(f"**🤖 AI:** {message}")
