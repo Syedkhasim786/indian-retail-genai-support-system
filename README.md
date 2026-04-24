@@ -1,2 +1,28 @@
-# indian-retail-genai-support-system
-Designed and developed a scalable GenAI-based customer support system for Indian retail, leveraging LangGraph for workflow orchestration and LangChain for LLM integration, supporting multilingual (Hinglish) queries and simulated backend services.
+# 🇮🇳 Indian Retail GenAI Support System
+
+## 🚀 Overview
+
+This is a GenAI-based customer support system for Indian retail platforms.
+
+Built using:
+
+* LangChain
+* LangGraph
+
+## 💡 Features
+
+* Order tracking
+* FAQ responses
+* Complaint handling
+* Hinglish query support
+
+## 🧠 Architecture
+
+User Query → LangGraph → LangChain → Response
+
+## 📌 Future Scope
+
+* Add RAG
+* Add CrewAI agents
+* Add UI (Streamlit)
+* Add API integration
