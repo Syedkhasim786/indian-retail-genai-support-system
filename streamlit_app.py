@@ -3,7 +3,7 @@ import os
 from langgraph.graph import StateGraph
 from langchain.chat_models import ChatOpenAI
 
-# 🔐 Load API Key safely
+# 🔐 API Key
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 llm = ChatOpenAI(
@@ -39,7 +39,7 @@ def order_node(state):
     return state
 
 def complaint_node(state):
-    state["response"] = "Complaint register ho gayi hai. Team will contact you."
+    state["response"] = "Complaint registered. Our team will contact you."
     return state
 
 def general_node(state):
@@ -47,7 +47,7 @@ def general_node(state):
     state["response"] = response.content
     return state
 
-# 🔹 Build Graph
+# 🔹 Graph
 graph = StateGraph(State)
 
 graph.add_node("classify", classify)
@@ -76,12 +76,10 @@ graph.set_finish_point("general")
 
 app = graph.compile()
 
-# 🌐 Streamlit UI
+# 🌐 UI
 st.set_page_config(page_title="Retail GenAI", page_icon="🛍️")
-
 st.title("🇮🇳 Indian Retail GenAI Support System")
 
-# 💬 Chat History
 if "chat" not in st.session_state:
     st.session_state.chat = []
 
@@ -91,11 +89,9 @@ if query:
     result = app.invoke({"query": query})
     answer = result["response"]
 
-    # Save chat
     st.session_state.chat.append(("You", query))
     st.session_state.chat.append(("AI", answer))
 
-# Display chat
 for sender, message in st.session_state.chat:
     if sender == "You":
         st.markdown(f"**🧑 You:** {message}")
